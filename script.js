@@ -465,11 +465,20 @@
 
             const btn = (id, key) => {
                 const el = document.getElementById(id);
-                el.onmousedown = el.ontouchstart = (e) => { e.preventDefault(); this.keys[key] = true; };
-                el.onmouseup = el.ontouchend = (e) => { e.preventDefault(); this.keys[key] = false; };
+                // el.onmousedown = el.ontouchstart = (e) => { e.preventDefault(); this.keys[key] = true; };
+                // el.onmouseup = el.ontouchend = (e) => { e.preventDefault(); this.keys[key] = false; };
             };
-            btn('leftBtn', 'left');
-            btn('rightBtn', 'right');
+            // btn('leftBtn', 'left');
+            // btn('rightBtn', 'right');
+
+            // Slider Logic
+            const slider = document.getElementById('moveSlider');
+            this.sliderValue = 50;
+            const updateSlider = (e) => {
+                this.sliderValue = parseFloat(e.target.value);
+            };
+            slider.addEventListener('input', updateSlider);
+            slider.addEventListener('change', updateSlider);
 
             const anchorBtn = document.getElementById('anchorBtn');
             anchorBtn.onmousedown = anchorBtn.ontouchstart = (e) => {
@@ -498,6 +507,50 @@
                     this.showMenu();
                 }
             });
+        }
+
+        update(dt) {
+            if (this.mode !== 'GAME') return;
+
+            // Slow Mo
+            let updateDt = dt;
+            if (this.slowMoTimer > 0) {
+                this.slowMoTimer -= dt;
+                this.timeScale = 0.3;
+            } else {
+                this.timeScale = 1.0;
+            }
+            const worldDt = dt * this.timeScale;
+
+            // Slider Movement
+            if (this.player) {
+                // Smoothly lerp towards slider target for less jitter
+                const targetX = (this.sliderValue / 100) * (this.renderer.logicalWidth - this.player.w);
+                this.player.x += (targetX - this.player.x) * 15 * worldDt;
+
+                // Keyboard override
+                if (this.keys.left) this.sliderValue = Math.max(0, this.sliderValue - 80 * worldDt);
+                if (this.keys.right) this.sliderValue = Math.min(100, this.sliderValue + 80 * worldDt);
+
+                // Clamp
+                this.player.x = Math.max(10, Math.min(this.renderer.logicalWidth - 50, this.player.x));
+            }
+
+            // Combo Decay
+            if (this.comboTimer > 0) {
+                this.comboTimer -= worldDt;
+                if (this.comboTimer <= 0) this.combo = 0;
+            }
+
+            this.weather.update(worldDt, this.score, this.modifiers.windMult);
+
+            // Shooting
+            this.player.cooldown -= dt * 1000;
+            if (this.keys.shoot && this.player.cooldown <= 0) {
+                this.shoot();
+                this.player.cooldown = this.player.maxCooldown;
+            }
+
         }
 
         showMenu() {
