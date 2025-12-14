@@ -895,7 +895,9 @@
             let vy = -600;
             if (this.loadout.perk === 'precision') vy = -1200;
 
-            // ARCADE: Triple Shot
+            // ARCADE: Triple Shot (Unless Tech Bow - it needs precision for Anchor)
+            const isTech = this.loadout.bow === 'tech';
+
             const createArrow = (vxOffset) => {
                 this.arrows.push({
                     x: this.player.x + 18,
@@ -909,8 +911,11 @@
             };
 
             createArrow(0); // Center
-            createArrow(-100); // Left Spread
-            createArrow(100); // Right Spread
+
+            if (!isTech) {
+                createArrow(-100); // Left Spread
+                createArrow(100); // Right Spread
+            }
 
             this.renderer.shake = 2; // Recoil shake
         }
