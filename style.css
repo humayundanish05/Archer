@@ -272,81 +272,101 @@ canvas {
 /* Controls */
 .controls {
     position: absolute;
-    left: 0;
-    right: 0;
+    left: 12px;
+    right: 12px;
     bottom: 20px;
+    bottom: max(20px, env(safe-area-inset-bottom) + 10px);
     display: flex;
-    justify-content: center;
-    gap: 8px;
+    justify-content: space-between;
     z-index: 11;
+    pointer-events: none;
+}
+
+.control-group {
+    display: flex;
+    gap: 12px;
     pointer-events: none;
 }
 
 .touchBtn {
     pointer-events: auto;
-    background: rgba(0, 0, 0, 0.5);
-
-    border-radius: 12px;
-    padding: 16px 24px;
-    color: var(--text);
+    background: rgba(0, 0, 0, 0.4);
+    border-radius: 50px;
+    /* Pillow shape for flat feel */
+    padding: 0;
+    width: 64px;
+    height: 64px;
+    color: #fff;
     font-weight: 800;
-    border: 1px solid rgba(255, 255, 255, 0.1);
+    border: 2px solid rgba(255, 255, 255, 0.2);
     cursor: pointer;
     user-select: none;
-    font-size: 16px;
+    font-size: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: transform 0.1s;
+    box-shadow: none;
+    /* Flat */
 }
 
 .touchBtn:active {
-    background: rgba(0, 0, 0, 0.7);
-    transform: scale(0.96);
+    background: rgba(255, 255, 255, 0.2);
+    transform: scale(0.95);
 }
 
 .special-btn {
     border-color: var(--accent);
     color: var(--accent);
+    font-size: 14px;
+    border-radius: 12px;
+    width: auto;
+    padding: 0 20px;
+    letter-spacing: 1px;
 }
 
-@media (max-width:600px) {
-    body {
-        padding: 0;
-        align-items: flex-start;
-    }
+.shoot-btn {
+    width: 80px;
+    height: 80px;
+    background: var(--accent);
+    color: #000;
+    font-size: 16px;
+    border: none;
+}
 
+.shoot-btn:active {
+    background: #fff;
+}
+
+@media (max-width: 600px) and (orientation: portrait) {
     #gameWrap {
-        border-radius: 0;
         height: 100vh;
-        border: none;
-        box-shadow: none;
+        width: 100vw;
+        border-radius: 0;
     }
 
     canvas {
-        height: 100%;
-        min-height: auto;
-        touch-action: none;
+        width: 100%;
+        height: 100% !important;
+        object-fit: cover;
+    }
+
+    .ui {
+        top: env(safe-area-inset-top);
     }
 
     .panel {
-        width: 90%;
-        padding: 16px;
-        max-height: 90vh;
-        overflow-y: auto;
-    }
-
-    .options-row {
-        flex-direction: column;
+        width: 95%;
+        padding: 12px;
     }
 
     .controls {
         bottom: 40px;
         bottom: max(40px, env(safe-area-inset-bottom) + 20px);
-        gap: 12px;
-    }
-
-    .touchBtn {
-        padding: 16px 20px;
-        font-size: 18px;
     }
 }
+
+/* REMOVED PREVIOUS MOBILE QUERY THAT CONTRADICTED PORTRAIT */
 
 @media (max-width: 600px) and (orientation: portrait) {
     #gameWrap {
@@ -370,4 +390,4 @@ canvas {
         width: 95%;
         padding: 12px;
     }
-    }
+}
