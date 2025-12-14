@@ -347,3 +347,27 @@ canvas {
         font-size: 18px;
     }
 }
+
+@media (max-width: 600px) and (orientation: portrait) {
+    #gameWrap {
+        height: 100vh;
+        width: 100vw;
+    }
+
+    canvas {
+        width: 100%;
+        height: 100% !important;
+        /* Force fill */
+        object-fit: cover;
+        /* Ensure no stretching weirdness */
+    }
+
+    .ui {
+        top: env(safe-area-inset-top);
+    }
+
+    .panel {
+        width: 95%;
+        padding: 12px;
+    }
+    }
