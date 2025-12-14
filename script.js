@@ -491,6 +491,13 @@
             window.addEventListener('contextmenu', e => {
                 e.preventDefault();
             });
+
+            // Android Back Button Handler
+            window.addEventListener('popstate', (e) => {
+                if (this.mode === 'GAME' || this.mode === 'OVER') {
+                    this.showMenu();
+                }
+            });
         }
 
         showMenu() {
@@ -533,6 +540,9 @@
         }
 
         startGame() {
+            // Push history state to capture Back button
+            history.pushState({ page: 'game' }, 'Game', '#game');
+
             this.mode = 'GAME';
             document.getElementById('startPanel').style.display = 'none';
             document.getElementById('gameOver').style.display = 'none';
