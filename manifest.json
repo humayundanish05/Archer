@@ -1,0 +1,18 @@
+{
+    "name": "Archer vs Birds",
+    "short_name": "Archer",
+    "description": "Defend the skies in this arcade archery game.",
+    "start_url": "./index.html",
+    "display": "standalone",
+    "background_color": "#1a2a3a",
+    "theme_color": "#FFD166",
+    "orientation": "landscape",
+    "icons": [
+        {
+            "src": "icon.svg",
+            "sizes": "192x192 512x512",
+            "type": "image/svg+xml",
+            "purpose": "any maskable"
+        }
+    ]
+}
