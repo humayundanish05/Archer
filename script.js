@@ -175,6 +175,8 @@
             this.canvas = document.getElementById(canvasId);
             this.ctx = this.canvas.getContext('2d', { alpha: false });
             this.shake = 0;
+            this.logicalWidth = 640;
+            this.scale = 1;
             this.resize();
             window.addEventListener('resize', () => this.resize());
         }
@@ -184,19 +186,22 @@
             const dpr = Math.max(1, window.devicePixelRatio || 1);
             const rect = wrap.getBoundingClientRect();
 
-            // Mobile: larger height ratio
-            const isMobile = window.innerWidth < 600;
-            const hRatio = isMobile ? 1.2 : 0.7;
-
             this.canvas.style.width = rect.width + 'px';
-            this.canvas.style.height = Math.max(460, rect.width * hRatio) + 'px';
+            this.canvas.style.height = rect.height + 'px';
 
-            this.width = rect.width;
-            this.height = Math.max(460, rect.width * hRatio);
+            this.canvas.width = Math.floor(rect.width * dpr);
+            this.canvas.height = Math.floor(rect.height * dpr);
 
-            this.canvas.width = Math.floor(this.width * dpr);
-            this.canvas.height = Math.floor(this.height * dpr);
-            this.ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+            // Scale game to fit logical width (640) into physical width
+            this.scale = rect.width / this.logicalWidth;
+
+            // Set Transform: Scale everything
+            this.ctx.setTransform(dpr * this.scale, 0, 0, dpr * this.scale, 0, 0);
+
+            // Logical Dimensions
+            this.width = this.logicalWidth;
+            this.height = rect.height / this.scale;
+
             this.dpr = dpr;
         }
 
