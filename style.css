@@ -285,7 +285,8 @@ canvas {
 .control-group {
     display: flex;
     gap: 12px;
-    pointer-events: none;
+    pointer-events: auto;
+    /* Ensure groups are interactive */
     align-items: center;
 }
 
