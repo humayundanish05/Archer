@@ -192,7 +192,15 @@
             this.canvas.width = Math.floor(rect.width * dpr);
             this.canvas.height = Math.floor(rect.height * dpr);
 
-            // Scale game to fit logical width (640) into physical width
+            // Dynamic Logical Width for PC/Tablets (prevents "Zoomed In" look)
+            // If screen is wide, we increase logical width to show more field
+            if (rect.width > 768) {
+                this.logicalWidth = 640 * (rect.width / 768);
+            } else {
+                this.logicalWidth = 640;
+            }
+
+            // Scale game to fit logical width into physical width
             this.scale = rect.width / this.logicalWidth;
 
             // Set Transform: Scale everything
@@ -399,6 +407,106 @@
             this.ctx.fillText(isMimic ? '!' : '?', 0, 2);
 
             this.ctx.restore();
+        }
+
+        drawRealisticPlayer(p, aimAngle = -Math.PI / 2) {
+            const ctx = this.ctx;
+            const x = p.x;
+            const y = p.y;
+            const w = p.w;
+            const h = p.h;
+
+            // Flip if looking left (not really needed for vertical shooter but good for polish)
+            ctx.save();
+            ctx.translate(x + w / 2, y + h / 2);
+
+            // Simple Vector Humanoid
+            // Head
+            ctx.fillStyle = '#f1c27d'; // Skin tone
+            ctx.beginPath();
+            ctx.arc(0, -h * 0.4, 10, 0, Math.PI * 2);
+            ctx.fill();
+
+            // Headband / Hood
+            ctx.fillStyle = '#2b4b60';
+            ctx.beginPath();
+            ctx.arc(0, -h * 0.4, 11, Math.PI, Math.PI * 2);
+            ctx.lineTo(12, -h * 0.4);
+            ctx.lineTo(-12, -h * 0.4);
+            ctx.fill();
+
+            // Body
+            ctx.fillStyle = '#3a5a70'; // Tunic
+            ctx.fillRect(-8, -h * 0.2, 16, h * 0.5);
+
+            // Legs
+            ctx.fillStyle = '#222';
+            ctx.fillRect(-9, h * 0.3, 6, h * 0.2); // Left leg
+            ctx.fillRect(3, h * 0.3, 6, h * 0.2);  // Right leg
+
+            // Arms (Drawing Bow)
+            ctx.strokeStyle = '#f1c27d';
+            ctx.lineWidth = 4;
+            ctx.lineCap = 'round';
+
+            // Left Arm (Holding Bow)
+            ctx.beginPath();
+            ctx.moveTo(-8, -h * 0.15);
+            ctx.lineTo(-15, -h * 0.25); // Elbow usually out, but vertical shooter...
+            ctx.lineTo(0, -h * 0.5); // Pointing up
+            ctx.stroke();
+
+            // Right Arm (Pulling String)
+            ctx.beginPath();
+            ctx.moveTo(8, -h * 0.15);
+            ctx.lineTo(15, 0);
+            ctx.lineTo(0, 0); // At chest
+            ctx.stroke();
+
+            // Bow
+            ctx.save();
+            ctx.translate(0, -h * 0.5); // Bow Position above head roughly
+            ctx.rotate(0); // Aiming up
+
+            ctx.strokeStyle = '#5d4037';
+            ctx.lineWidth = 3;
+            // Bow Arc
+            ctx.beginPath();
+            ctx.arc(0, 10, 25, Math.PI + 0.5, 2 * Math.PI - 0.5);
+            ctx.stroke();
+
+            // String
+            ctx.strokeStyle = '#fff';
+            ctx.lineWidth = 1;
+            ctx.beginPath();
+            ctx.moveTo(-22, 10);
+            ctx.lineTo(0, 25); // Pulled back point
+            ctx.lineTo(22, 10);
+            ctx.stroke();
+
+            ctx.restore();
+
+            // Scarf / Cape (Animation)
+            const wind = Math.sin(Date.now() / 200) * 5;
+            const wind2 = Math.cos(Date.now() / 150) * 3;
+            ctx.fillStyle = '#e63946';
+            ctx.beginPath();
+            ctx.moveTo(-5, -h * 0.2);
+            ctx.quadraticCurveTo(-15 + wind, -h * 0.1, -10 + wind2, h * 0.1);
+            ctx.lineTo(5, -h * 0.2);
+            ctx.fill();
+
+            // Damage Flash
+            if (p.damageFlash > 0) {
+                ctx.globalAlpha = 0.7;
+                ctx.fillStyle = '#f00';
+                ctx.globalCompositeOperation = 'source-atop';
+                ctx.fillRect(-w, -h, w * 2, h * 2);
+                ctx.globalCompositeOperation = 'source-over';
+                ctx.globalAlpha = 1;
+            }
+
+            ctx.restore();
         }
     }
 
@@ -629,7 +737,8 @@
                 cooldown: 0,
                 maxCooldown: 400 / bowStats.speed,
                 anchored: false,
-                energy: 100
+                energy: 100,
+                damageFlash: 0
             };
 
             this.weather.reset();
@@ -923,16 +1032,7 @@
             });
 
             if (this.player) {
-                if (this.lives < 10 && Math.random() < 0.1) ctx.globalAlpha = 0.5;
-                ctx.fillStyle = '#dcb';
-                ctx.fillRect(this.player.x, this.player.y, this.player.w, this.player.h);
-                ctx.globalAlpha = 1;
-
-                ctx.strokeStyle = '#853';
-                ctx.lineWidth = 3;
-                ctx.beginPath();
-                ctx.arc(this.player.x + 20, this.player.y + 25, 25, -0.5, 0.5);
-                ctx.stroke();
+                this.renderer.drawRealisticPlayer(this.player);
             }
 
             this.particles.forEach(p => {
